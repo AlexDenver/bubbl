@@ -1,0 +1,35 @@
+message: {
+    id: String,
+    time: Date/Time,
+    text: String,
+    from: String: Username,
+    to: String: Username,
+    read: Boolean,
+    notify: Boolean
+}
+
+post: {
+    id: String,    
+    time: Date/Time,
+    text: String,
+    author: String: Username,    
+}
+
+comment: {
+    id: String,
+    pid: String : PostID,
+    text: String,
+    time: Date/Time,
+    author: String: Username,
+
+
+}
+
+user: {    
+    username: String,
+    first_name: String,
+    last_name: String, 
+    dob: Date,
+    intro: String,
+    gender: String
+}
