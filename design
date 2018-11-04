@@ -21,8 +21,21 @@ comment: {
     text: String,
     time: Date/Time,
     author: String: Username,
+}
 
-
+friends: {
+    id: String,
+    sid: String,
+    did: String,
+    status: String [Blocked | Friend | Added]
+}
+notification: {
+    id: String,
+    type: String, [Liked | Comment | Added]
+    originator: UserId,
+    target: UserId,
+    notifed: Boolean,
+    viewed: Booleane
 }
 
 user: {    
@@ -33,3 +46,9 @@ user: {
     intro: String,
     gender: String
 }
+
+
+
+COLOR
+linear-gradient(to right,rgb(84, 57, 88) , rgba(29, 53, 87, 1))
+linear-gradient(to right,rgb(9, 23, 37) , rgba(29, 53, 87, 1))
