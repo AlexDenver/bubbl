@@ -27,6 +27,7 @@ friends: {
     id: String,
     sid: String,
     did: String,
+    date: Date,
     status: String [Blocked | Friend | Added]
 }
 notification: {
@@ -52,3 +53,7 @@ user: {
 COLOR
 linear-gradient(to right,rgb(84, 57, 88) , rgba(29, 53, 87, 1))
 linear-gradient(to right,rgb(9, 23, 37) , rgba(29, 53, 87, 1))
+
+IDEAS
+Add Binding Settings
+First Click Open Chat, Second Open Profile
