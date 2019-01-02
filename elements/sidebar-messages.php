@@ -42,6 +42,11 @@
                             $(".feed").html(res)
                         })
                     })
+
+                    // setInterval(()=>{
+
+                    // })
+
                     // 2018-12-30 11:49:44
                     $('[data-time]').each((i, el)=>{
                         timeStr = moment($(el).data('time'), "YYYY-MM-DD LTS").fromNow();

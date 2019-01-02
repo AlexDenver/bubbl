@@ -117,6 +117,7 @@ let scrollTo = (ele) => {
         scrollTop: ($(ele).offset().top) - 100
     }, 800);
 }
+$NO_NOTIF = false;
 let init = () => {
     $('.login-trigger').click(showLoginForm);
     $('.register-trigger').click(showRegisterForm);
@@ -136,6 +137,7 @@ let init = () => {
                 //     scrollTop: ($('.message:last').offset().top) 
                 // }, 0);
                 $("#msg-box").val('')
+                $NO_NOTIF = true;
             }
         })
 
@@ -206,4 +208,10 @@ $('[data-aside]').click((ev) => {
     loadSidebar("./elements/"+page);
     
 })
+
+
+let playSound = ()=>{
+    var audio = new Audio('./res/notify.mp3');
+    audio.play();
+}
 

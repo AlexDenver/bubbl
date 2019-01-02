@@ -186,7 +186,8 @@
             if($stmt->execute()){
                 $stmt = $GLOBALS['conn']->prepare("INSERT INTO bio VALUES(?, ?, ?, ?, ?, ?)");  
                 $space = " ";
-                $stmt->bind_param("ssssss", $usn, 'user.png', $space, $space, $space, $space);        
+                $img = 'user.png';
+                $stmt->bind_param("ssssss", $usn, $img, $space, $space, $space, $space);        
                 $stmt->execute();
                 $resp['status'] = 200;
                 $resp['msg'] = "User Registration Successful.";

@@ -77,6 +77,14 @@
                             .then((data)=>{
                                 data = JSON.parse(data);
                                 if(data.length > msgs.length)
+
+                                    if($NO_NOTIF){
+                                        $NO_NOTIF = false;
+                                    }else{
+
+                                        playSound();
+                                    }
+                                    
                                     for(i=msgs.length; i < data.length; i++){
                                         msg = data[i];
                                         msgs.push(msg)
