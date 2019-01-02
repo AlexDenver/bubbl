@@ -186,7 +186,7 @@
             if($stmt->execute()){
                 $stmt = $GLOBALS['conn']->prepare("INSERT INTO bio VALUES(?, ?, ?, ?, ?, ?)");  
                 $space = " ";
-                $stmt->bind_param("ssssss", $usn, $space, $space, $space, $space, $space);        
+                $stmt->bind_param("ssssss", $usn, 'user.png', $space, $space, $space, $space);        
                 $stmt->execute();
                 $resp['status'] = 200;
                 $resp['msg'] = "User Registration Successful.";
@@ -424,8 +424,8 @@
     function get_all_requests(){
         $me = $_SESSION['user'];      
         $state = 'requested';
-        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM friends WHERE ((sid=? OR did=?)  AND status=?)");
-        $stmt->bind_param("sss",  $me, $me, $state);
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM friends WHERE (( did=?)  AND status=?)");
+        $stmt->bind_param("ss", $me, $state);
         if($stmt->execute()){     
             $res = $stmt->get_result();
             $temp = mysqli_fetch_all ($res, MYSQLI_ASSOC);

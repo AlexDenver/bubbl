@@ -111,6 +111,11 @@
                                 $.post('./req/all.php' , {req_type: 'request_send', username: usn})
                                 .then((d)=>{
                                     console.log(d);
+                                    if(d.status==200){
+                                        $(e.target).closest('.user').fadeOut(()=>{
+                                            $(e.target).closest('.user').remove();
+                                        })
+                                    }
                                 })
                             })
                         })

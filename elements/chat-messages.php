@@ -36,7 +36,7 @@
                 </div>
                 <?}else{ ?>
                     <div class="no-chat-err">
-                        <small>Start mixing up and chatting, Anti-social Being!</small>
+                        <small>Start mixing up and chatting,You Anti-social Being!</small>
                     </div>
                 <?}?>
                 <div class="box dyn-cont">
