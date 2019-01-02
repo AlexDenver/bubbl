@@ -10,7 +10,7 @@
                         <textarea name="status" id="status" ></textarea>
                         <div class="options">
                             
-                            <button>Post</button>
+                            <button id="post" title="Needs to have 10 Char to Post" disabled>Post</button>
                         </div>
                     </div>
                     <div class="newsfeed">
@@ -43,7 +43,7 @@
                                     <div class="react">
 
                                     </div>
-                                    <div class="comment-button">
+                                    <div class="comment-button" data-pid="<? echo $post['id']; ?>">
                                         <i class="fas fa-comment-dots"></i> Comment
                                     </div>
                                 </div>
@@ -71,4 +71,33 @@
                         timeStr = moment($(el).data('time'), "YYYY-MM-DD LTS").fromNow();
                         $(el).html(timeStr);
                     })
+                    $('#status').on('input', (e)=>{
+                        txt = $(e.target).val()
+                        console.log(txt)
+                        if(txt.length < 10)
+                            $('#post').attr('disabled', true);
+                        else
+                            $('#post').removeAttr('disabled');
+                    })
+                    $('#post').on('click', ()=>{
+                        text = $('#status').val();
+                        if(text.length < 10)
+                            return;
+                        else{
+                            $.post('./req/all.php', {req_type: 'new_post', content: text})
+                            .then(()=>{
+                                loadSidebar('./elements/sidebar-feed.php')
+                            })
+                        }
+                        console.log("S")
+                    })
+
+                    $("[data-pid]").click((e)=>{
+                        pid = $(e.target).data('pid');
+
+                        loadSidebar('./elements/sidebar-single-post.php', {id: pid})
+                        
+                    })
                 </script>
+
+

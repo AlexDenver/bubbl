@@ -26,7 +26,7 @@
                         <i class="fas fa-plus"></i>
                     </div>
                     <div class="input">
-                        <form id="chatin">
+                        <form id="chatin" <? echo isset($NO_CHAT)?'disabled':''; ?> autocomplete="off">
                             <input type="text" name="message" id="msg-box"> 
                             <button type="submit" class="hidden" id="send"></button>
                         </form>

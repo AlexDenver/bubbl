@@ -2,7 +2,7 @@
     include_once "../includes/probe.php";
     include_once "../includes/functions.php";
 
-    if($usr = get_user_details($_SESSION['user'])){
+    if($usr = get_user_details($_GET['user'])){
 ?>
                 <div class="user-profile">
                     <div class="profile">
@@ -20,7 +20,7 @@
                                         <i class="fas fa-birthday-cake"></i> 16/Sep
                                 </div>
                                 <div class="friends">
-                                    <i class="fas fa-user-friends"></i> <? echo count(get_all_friends($_SESSION['user'])); ?> Friends
+                                    <i class="fas fa-user-friends"></i> <? echo count(get_all_friends($_GET['user'])); ?> Friends
                                 </div>
                             </div>
                         </div>
@@ -28,28 +28,23 @@
                         <div class="bio">
                         <? echo $usr['intro']; ?>
                         </div>
-                        <div class="edit-profile">
-                            <div class="edit">
-                                <i class="fas fa-user-edit"></i>
-                            </div>
-                        </div>
-                        <!-- <div class="chin">
+                        <? if($_GET['user']!==$_SESSION['user']){ ?>
+                        <div class="chin">
+                            <? if(is_connection_state($_GET['user'], "friend")){?>
+                            <div class="remove-friend"><i class="fas fa-user-minus"></i> Unfriend</div>
+                            <? }else if(is_connection_state($_GET['user'], "requested")){?>
+                            <div class="req-friend"><i class="fas fa-hourglass"></i>  &nbsp;Sent Request</div>
+                            <? }else{ ?>
                             <div class="add-friend"><i class="fas fa-user-plus"></i> Add Friend</div>
+                            <? } ?>
                             <div class="message"><i class="fas fa-comment-alt"></i> Message</div>
-                        </div> -->
+                        </div>
+                        <?} ?>
                     </div>
                     <div class="divider"></div>
                     <div class="newsfeed">
-                        <div class="new-status">
-                            <h3>Post Status</h3>
-                            <textarea name="status" id="status" ></textarea>
-                            <div class="options">
-                                
-                                <button id="post" title="Needs to have 10 Char to Post" disabled>Post</button>
-                            </div>
-                        </div>
                         <?php
-                            if($hasFeed = get_all_my_posts($_SESSION['user'], 0)){
+                            if($hasFeed = get_all_my_posts($_GET['user'], 0)){
                                 $more = false;
                                 if(sizeof($hasFeed) == ($GLOBALS['limit']+1)){
                                     $hasFeed = array_slice($hasFeed, $GLOBALS['limit']);
@@ -102,6 +97,7 @@
 
 
     <script>
+        var user = '<?echo $_GET['user'];?>';
         $(".edit-profile").click(()=>{
             loadSidebar("./elements/sidebar-account-edit.php");
         })
@@ -113,5 +109,21 @@
 
         $('.friends').click((e)=>{
             loadSidebar('./elements/sidebar-sub-chat-start.php')
+        })
+
+
+        $('.remove-friend').click((e)=>{
+            $.post('./req/all.php', {id: user,req_type: 'unfriend'})
+            .then((d)=>{
+                loadSidebar('./elements/sidebar-account-other.php', {user: user});
+            })
+        })
+
+
+        $('.add-friend').click((e)=>{
+            $.post('./req/all.php', {id: user,req_type: 'friend'})
+            .then((d)=>{
+                loadSidebar('./elements/sidebar-account-other.php', {user: user});
+            })
         })
     </script>

@@ -16,8 +16,8 @@
                     <li data-aside="sidebar-search.php">
                         <i class="fas fa-user-plus"></i>
                     </li>
-                    <li data-aside="sidebar-acc-settings.php">
-                        <i class="fas fa-cogs"></i>
+                    <li class="logout">
+                        <i class="fas fa-power-off"></i>
                     </li>
                 </ul>
             </div>

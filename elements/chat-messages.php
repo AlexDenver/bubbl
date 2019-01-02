@@ -8,13 +8,20 @@
             <?php
                 if(!isset($_GET['usn'])){
                     $thread = get_last_thread();
-                    $usn = $thread[0]["mto"];
-                    if($usn==$_SESSION['user'])
-                        $usn = $thread[0]["mfrom"];
+                    if($thread){
+                        $usn = $thread[0]["mto"];
+                        if($usn==$_SESSION['user'])
+                            $usn = $thread[0]["mfrom"];
+                    }else{
+                        $NO_CHAT = true;
+                    }
                 }else{ 
                     $usn = $_GET['usn'];
                     $thread = get_thread($usn);
                 }
+
+
+                if(!isset($NO_CHAT)){
             ?>
                 <div class="header dyn-cont">
                     <div class="user-icon">
@@ -27,6 +34,11 @@
                         <i class="fas fa-ellipsis-v"></i>
                     </div>
                 </div>
+                <?}else{ ?>
+                    <div class="no-chat-err">
+                        <small>Start mixing up and chatting, Anti-social Being!</small>
+                    </div>
+                <?}?>
                 <div class="box dyn-cont">
                     <?php
                         foreach($thread as $msg){
@@ -50,6 +62,7 @@
                         }
                     ?>
                 </div>
+                <? if(!isset($NO_CHAT)) {?>
                     <script class="dyn-cont">
                         $RECEPIENT = '<?php echo $usn;?>'; 
                         img = {};
@@ -77,3 +90,4 @@
                         }, 500);
                         
                     </script>
+                <?  } ?>

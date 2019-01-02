@@ -9,7 +9,7 @@
                             if($friends = get_all_friends($_SESSION['user'])){
                                 foreach ($friends as $friend){
                                     ?>
-                                    <div class="header user" onclick="startChat('<?php echo $friend; ?>')">
+                                    <div class="header user" >
                                         <div class="user-icon">
                                             <img src="<? echo get_user_img($friend); ?>" alt="">
                                         </div>
@@ -18,7 +18,7 @@
                                             <?php  echo $friend?>
                                         </div>
                                         <div class="time">
-                                            <button class="btn">Chat</button>
+                                            <button class="btn" onclick="startChat('<?php echo $friend; ?>')">Chat</button>
                                         </div>
                                     </div>                                
                                     <?

@@ -7,7 +7,7 @@
     if($GLOBALS['conn']->connect_errno)
         print($GLOBALS['conn']->connect_error);
      
-    function get_display_picture($usn){
+    function find_user($usn){
 
         return "";
     }
@@ -31,6 +31,8 @@
         if($res->num_rows > 0)
             return true;        
     }
+
+
 
     function get_user_details($usn){
         $stmt = $GLOBALS['conn']->prepare("SELECT * FROM users WHERE username=?");
@@ -107,6 +109,18 @@
         $authors = "'" . implode("' , '" ,$authors)."'";   
         $stmt = $GLOBALS['conn']->prepare("SELECT * FROM post WHERE author IN($authors) ORDER BY time DESC LIMIT ? OFFSET ?");
         $stmt->bind_param("ss", $limit, $offset);
+        $stmt->execute();
+        $res =  $stmt->get_result();
+        if($res->num_rows > 0){
+            $data = mysqli_fetch_all ($res, MYSQLI_ASSOC);
+            return $data;
+        }else
+            return false;
+    }
+
+    function get_post_by_id($id){
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM post WHERE id=?");
+        $stmt->bind_param("i", $id);
         $stmt->execute();
         $res =  $stmt->get_result();
         if($res->num_rows > 0){
@@ -239,7 +253,7 @@
         $resp = array();
         if(user_exisits($usn)){
             $id = update_convo($msg, $usn);
-            echo $id;
+            // echo $id;
             $stmt = $GLOBALS['conn']->prepare("INSERT INTO messages(text, mfrom, mto, tid) VALUES(?, ?, ?, ?)");
             $stmt->bind_param("sssi", $msg, $_SESSION['user'], $usn, $id);
             if($stmt->execute()){      
@@ -255,6 +269,52 @@
             $resp = "User Does Not Exists.";
         }
         return $resp;
+    }
+
+    function what_i_think($comment, $id){
+        $resp = array();     
+        $stmt = $GLOBALS['conn']->prepare("INSERT INTO comment(text, pid, author) VALUES(?, ?, ?)");
+        $stmt->bind_param("sis", $comment, $id, $_SESSION['user']);
+        if($stmt->execute()){      
+            $resp['status'] = 200;
+            $resp['msg'] = "Sent!";                
+        }else{
+            $resp['status'] = -1;
+            $resp['msg'] = "Table Error!";
+        }                    
+        return $resp;
+    }
+
+    function what_others_think_about($id){
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM comment WHERE pid=? ORDER BY time DESC");
+        $stmt->bind_param("i", $id);
+        if($stmt->execute()){     
+            $res = $stmt->get_result();
+            $temp = mysqli_fetch_all ($res, MYSQLI_ASSOC);
+            return $temp;              
+        }else{
+            return false;
+        }
+    }
+
+    function search_users($query){
+        $query = '%'.$query.'%';
+        $all_friends = get_all_friends($_SESSION['user']);
+        $all_friends = "'" . implode("' , '" ,$all_friends)."'";   
+        $stmt = $GLOBALS['conn']->prepare("SELECT username, first_name, last_name FROM `users` WHERE  (CONCAT(first_name, ' ' , last_name , ' ' , username) LIKE ?) AND username NOT IN ($all_friends)");
+        $stmt->bind_param("s", $query);
+        if($stmt->execute()){     
+            $res = $stmt->get_result();
+            $temp = mysqli_fetch_all ($res, MYSQLI_ASSOC);
+            $data = array();
+            foreach($temp as $user){
+                $user['img']  = get_user_img($user['username']);
+                array_push($data, $user);
+            }
+            return $data;              
+        }else{
+            return false;
+        }
     }
 
     function get_thread_by_id($id){
@@ -309,10 +369,14 @@
         $resp = array();
         if(user_exisits($usn)){
             $stmt = $GLOBALS['conn']->prepare("INSERT INTO friends(sid, did, status) VALUES(?, ?, ?)");
-            $stmt->prepare("sss", $_SESSION['username'], $usn, 'requested');
+            $reqx = 'requested';
+            $stmt->bind_param("sss", $_SESSION['user'], $usn, $reqx);
             if($stmt->execute()){
                 $resp['status'] = 200;
                 $resp['msg'] = "Sent!";                
+            }else{
+                $resp['status'] = -1;
+                $resp['msg'] = $stmt->error;
             }
         }else{
             $resp = -1;
@@ -321,25 +385,81 @@
         return $resp;
     }
 
+    function set_req_status($id, $status){        
+        $stmt = $GLOBALS['conn']->prepare("UPDATE friends SET status = ? WHERE id=?");
+        $stmt->bind_param("si", $status, $id);
+        if($stmt->execute()){
+            $resp['status'] = 200;
+            $resp['msg'] = "Status Set";                
+        }
+        return $resp;
+    }
+
+    function unfriend($usn){     
+        $me = $_SESSION['user'];        
+        $status='unfriend';
+        $stmt = $GLOBALS['conn']->prepare("UPDATE friends SET status = ? WHERE (((sid=? AND did=?) OR (sid=? AND did=?)) )");
+        $stmt->bind_param("sssss", $status, $me, $usn, $usn, $me);
+        if($stmt->execute()){
+            $resp['status'] = 200;
+            $resp['msg'] = "Status Set";                
+        }
+        return $resp;
+    }
+
+    function friend($usn){     
+        $me = $_SESSION['user'];        
+        $status='requested';
+        $stmt = $GLOBALS['conn']->prepare("UPDATE friends SET status = ? WHERE (((sid=? AND did=?) OR (sid=? AND did=?)) )");
+        $stmt->bind_param("sssss", $status, $me, $usn, $usn, $me);
+        if($stmt->execute()){
+            $resp['status'] = 200;
+            $resp['msg'] = "Status Set";                
+        }
+        return $resp;
+    }
+
+    
+
+    function get_all_requests(){
+        $me = $_SESSION['user'];      
+        $state = 'requested';
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM friends WHERE ((sid=? OR did=?)  AND status=?)");
+        $stmt->bind_param("sss",  $me, $me, $state);
+        if($stmt->execute()){     
+            $res = $stmt->get_result();
+            $temp = mysqli_fetch_all ($res, MYSQLI_ASSOC);
+            return $temp;              
+        }else{
+            return false;
+        }
+    }
+
+
+
+
     function is_connection_state($usn, $state){
 
-        $me = $_SESSION['username'];        
-        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM friends WHERE (((sid=? AND did=?) OR (did=? AND sid=?)) AND status=?)");
+        $me = $_SESSION['user'];        
+        $stmt = $GLOBALS['conn']->prepare("SELECT * FROM friends WHERE (((sid=? AND did=?) OR (sid=? AND did=?)) AND status=?)");
         $stmt->bind_param("sssss", $usn, $me, $me, $usn, $state);
         $stmt->execute();
         $res =  $stmt->get_result();
+        // print_r($res);
         if($res->num_rows == 1)
-            return true;                
+            return true;  
+        else 
+            return false;             
         
     }
 
     function make_foe($usn){
         $resp = array();
-        $me = $_SESSION['username'];
+        $me = $_SESSION['user'];
         if(user_exisits($usn)){
             if(is_connection_state($usn, 'friend')){
                 $stmt = $GLOBALS['conn']->prepare("UPDATE friends SET status = ? WHERE ((sid=? AND did=?) OR (did=? AND sid=?))");
-                $stmt->prepare("sssss", 'stranger', $usn, $me, $me, $usn);
+                $stmt->binds_param("sssss", 'stranger', $usn, $me, $me, $usn);
                 if($stmt->execute()){
                     $resp['status'] = 200;
                     $resp['msg'] = "Unfriended";                
@@ -355,14 +475,14 @@
     function make_post($cont){
         $resp = array();
         
-        $stmt = $GLOBALS['conn']->prepare("INSERT INTO posts(text, author) VALUES(?, ?)");
-        $stmt->prepare("ss", $msg, $_SESSION['username'], $cont);
+        $stmt = $GLOBALS['conn']->prepare("INSERT INTO post(text, author) VALUES(?, ?)");
+        $stmt->bind_param("ss", $cont, $_SESSION['user']);
         if($stmt->execute()){
             $resp['status'] = 200;
             $resp['msg'] = "Posted";                
         }else{
             $resp['status'] = -1;
-            $resp['msg'] = "Table Error!";
+            $resp['msg'] = "Table Error!" . $stmt->error;
         }
         return $resp;
     }
@@ -399,12 +519,12 @@
         }
 
         // Check file size
-        if ($_FILES["imgup"]["size"] > 500000) {
+        if ($_FILES["imgup"]["size"] > 5000000) {
             $res["status"]  = -1;
             $res['msg'] = "File Size Error";
             $uploadOk = 0;
         }
-        echo "'".$imageFileType . "'";
+        // echo "'".$imageFileType . "'";
         // Allow certain file formats
         if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
         && $imageFileType != "gif" ) {
@@ -416,7 +536,7 @@
         // Check if $uploadOk is set to 0 by an error
         if ($uploadOk == 0) {
             $res["status"]  = -1;
-            $res['msg'] = "Sorry, your file was not uploaded.";
+            $res['msg_2'] = "Sorry, your file was not uploaded.";
         } else {
             $target_file = $target_dir . $_SESSION['user'] .".". $imageFileType;
             if (move_uploaded_file($_FILES["imgup"]["tmp_name"], $target_file)) {
@@ -427,6 +547,7 @@
                 $res["msg"] = "Sorry, there was an error uploading your file.";
             }
         }
+        return $res;
     }
 
 

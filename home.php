@@ -55,7 +55,7 @@
                         </div>
                     </div>
         </section>
-        <section class="why-bubbl">
+        <section class="why-bubbl" id="scroll-here">
             <div class="bg-white">
                 <div class="reason wrap">
                     <div class="left">
@@ -63,7 +63,7 @@
                         <div class="text">With the everyone on Bubbl, you can share valuable customer feedback and insights with the right people, and vice versa. Support teams that are up to date on the latest details will be better equipped to provide fast, great service.</div>
                     </div>
                     <div class="right">
-                        <img src="./res/laptop-chat.png" alt="">
+                        <img src="./res/laptop-chat.png" height="450px" alt="">
                     </div>
                 </div>
             </div>
@@ -89,6 +89,10 @@
     </div>
     <!-- <script src="./js/"></script> -->
     <script src="./js/script.js"></script>
-
+    <script>
+        $('.learn').click((e)=>{
+            scrollTo($('#scroll-here'))
+        })
+    </script>
 </body>
 </html>

@@ -85,16 +85,38 @@ let goModal = (title, body, icon) => {
 
 let sideBarPopulation = (html) => {
     $('.info-area').html(html);
+
+    $('.user-name').click((e)=>{
+        usn = $(e.target).text().trim();
+        console.log(e.target, usn)
+
+        $.get('./elements/sidebar-account-other.php', {user: usn})
+            .then((html)=>{
+                sideBarPopulation(html);
+            })
+    })
 }
+$('.user-name').click((e)=>{
+    usn = $(e.target).text().trim();
+    console.log(e.target, usn)
 
-let loadSidebar = (page) => {
-
-    $.get(page)
+    $.get('./elements/sidebar-account-other.php', {user: usn})
+        .then((html)=>{
+            sideBarPopulation(html);
+        })
+})
+let loadSidebar = (page, payload) => {
+    console.log(payload)
+    $.get(page, payload)
         .then((res) => {
             sideBarPopulation(res)
         })
 }
-
+let scrollTo = (ele) => {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: ($(ele).offset().top) - 100
+    }, 800);
+}
 let init = () => {
     $('.login-trigger').click(showLoginForm);
     $('.register-trigger').click(showRegisterForm);
@@ -121,6 +143,15 @@ let init = () => {
             console.log(e);
         })
     })
+
+
+    $('.logout').click((e)=>{
+        $.post('./req/all.php', {req_type: 'logout'})
+            .then((d)=>{
+                if(d.status == 200)
+                    window.location.href="/bubbl/"
+            })
+    })
 }
 
 let msgMaker = (msg, usr, pic) => {
@@ -139,6 +170,7 @@ let msgMaker = (msg, usr, pic) => {
 
 let populateMain = (html)=>{
     $('.dyn-cont').remove();
+    if(typeof $CHAT_INT != 'undefined')
     clearInterval($CHAT_INT);
     $(".it-area").prepend(html);
 }
@@ -146,10 +178,13 @@ let populateMain = (html)=>{
 let startChat = (usr)=>{
     if(isMobile){
         toggleSidebar();
-        
     }
     $.get("./elements/chat-messages.php", {usn: usr})
     .done((res)=>{
+        nc_err = $('.no-chat-err')
+        if(nc_err.length>0){
+            nc_err.remove();
+        }
         populateMain(res);
     })
 }
@@ -171,3 +206,4 @@ $('[data-aside]').click((ev) => {
     loadSidebar("./elements/"+page);
     
 })
+
